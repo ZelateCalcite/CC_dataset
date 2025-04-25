@@ -5,5 +5,5 @@ cross-culture dataset collection
 ```shell
 git clone git@github.com:dataabc/weiboSpider.git
 cd weiboSpider
-pip install -r requiments.txt
+pip install -r requirements.txt
 ```
