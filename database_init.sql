@@ -47,3 +47,92 @@ CREATE TABLE IF NOT EXISTS weibo
     FOREIGN KEY (wid) REFERENCES user_meta_info (wid)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS tweet_id
+(
+    id           INT AUTO_INCREMENT, -- 数据库唯一标识
+    tweet_id     VARCHAR(20) UNIQUE, -- 一条推特的唯一id
+    add_date     TIMESTAMP NOT NULL, -- 添加日期
+    del_flag     BOOL DEFAULT FALSE, -- 删除标识
+    fetched_flag BOOL DEFAULT FALSE, -- 爬取标识
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS tweet
+(
+    tweet_id                    VARCHAR(20) UNIQUE, -- 一条推特的唯一id
+    FOREIGN KEY (tweet_id) REFERENCES tweet_id (tweet_id),
+    add_date                    TIMESTAMP NOT NULL, -- 添加日期
+    del_flag                    BOOL DEFAULT FALSE, -- 删除标识
+    user_id                     VARCHAR(20),        -- 用户id
+    in_reply_to                 VARCHAR(20),        -- 回复的推特id
+    created_at                  TIMESTAMP,          -- 发表日期
+    text                        VARCHAR(5000),      -- 推特内容
+    full_text                   VARCHAR(5000),      -- 推特全文
+    lang                        VARCHAR(20),
+    /*
+    special language tags
+    lang:und – undefined language.
+    lang:qam – for tweets with mentions only (works for tweets since 2022-06-14).
+    lang:qct – for tweets with cashtags only (works for tweets since 2022-06-14).
+    lang:qht – for tweets with hashtags only (works for tweets since 2022-06-14).
+    lang:qme – for tweets with media links only (works for tweets since 2022-06-14).
+    lang:qst – for tweets with very short text (works for tweets since 2022-06-14).
+    lang:zxx – for tweets with either media or Twitter Card only, without any additional text
+    (works for tweets since 2022-06-14`.
+    */
+    possibly_sensitive          BOOL,               -- 敏感内容
+    possibly_sensitive_editable BOOL,
+    has_media                   BOOL,               -- 是否包含媒体内容
+    reply_count                 INT,                -- 回复数量
+    favorite_count              INT,                -- 喜欢数量
+    favorited                   BOOL,               -- 是否喜欢
+    retweet_count               INT,                -- retweet数量
+    bookmark_count              INT,                -- bookmark数量
+    bookmarked                  BOOL,               -- 是否bookmark
+    editable_until_msecs        VARCHAR(20),        -- 未知字段
+    is_translatable             BOOL,               -- 是否可以翻译
+    is_edit_eligible            BOOL,
+    edits_remaining             VARCHAR(10),
+    view_count                  VARCHAR(15),        -- 浏览人数
+    view_count_state            VARCHAR(30),        -- 浏览人数状态
+    is_quote_status             BOOL,               -- 该条推特是否为quote
+    quote_count                 INT,                -- quote数量
+    quote                       VARCHAR(20),        -- 如果是quote 这条推特指向的推特id
+#     retweeted_tweet             VARCHAR(2000),
+#     urls                        VARCHAR(2000),
+    hashtags                    VARCHAR(5000),      -- 标签
+#     has_community_notes         VARCHAR(20),
+#     community_note              VARCHAR(200),
+#     thumbnail_url               VARCHAR(2000),
+#     thumbnail_title             VARCHAR(200),
+    has_card                    BOOL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS tweet_media
+(
+    id         VARCHAR(20) PRIMARY KEY, -- 媒体的唯一标识
+    media_type INT,                     -- 0 photo 1 video 2 animated_gif
+    media_url  VARCHAR(1000),           -- 媒体下载链接 video animated_gif类型为封面图
+    url        VARCHAR(200),            -- 推文短链接
+    tweet_id   VARCHAR(20)              -- 媒体关联的推特id
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS tweet_user
+(
+    id               VARCHAR(20) PRIMARY KEY, -- 用户的唯一标识
+    add_date         TIMESTAMP NOT NULL,      -- 添加日期
+    del_flag         BOOL DEFAULT FALSE,      -- 删除标识
+    name             VARCHAR(100),            -- 用户名称
+    created_at       TIMESTAMP,               -- 创建日期
+    followers_count  INT,                     -- 粉丝数
+    following_count  INT,                     -- 关注数
+    favourites_count INT,                     -- 点赞数
+    screen_name      VARCHAR(100),            -- 显示名称
+    description      VARCHAR(1000),           -- 描述
+    location         VARCHAR(200)             -- 地址
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
