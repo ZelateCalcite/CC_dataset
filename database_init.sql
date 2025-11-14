@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS user_meta_info
 
 CREATE TABLE IF NOT EXISTS weibo
 (
-    weibo_id          VARCHAR(15) PRIMARY KEY,     -- 微博唯一标识, 标记一条微博
+    id                VARCHAR(15) PRIMARY KEY,     -- 微博唯一标识, 标记一条微博
     wid               CHAR(10),                    -- 用户id, 这条微博发布者的id
     content           VARCHAR(5000),               -- 微博正文
     article_url       VARCHAR(200),                -- 微博中头条文章的url，若微博中不存在头条文章，则值为''
@@ -136,3 +136,21 @@ CREATE TABLE IF NOT EXISTS tweet_user
     location         VARCHAR(200)             -- 地址
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS weibo_pre_annotation
+(
+    id            INT AUTO_INCREMENT PRIMARY KEY, -- 标注的唯一标识
+    add_date      TIMESTAMP NOT NULL,             -- 添加日期
+    del_flag      BOOL          DEFAULT FALSE,    -- 删除标识
+    weibo_id      VARCHAR(15),                    -- 用户名称
+    model         INT,                            -- 0 BERT 1 Qwen3-1.7B
+    annotation    VARCHAR(8000),                  -- 标注结果 JSON存储的数组
+    think         VARCHAR(2000) DEFAULT NULL,     -- CoT文本
+    import_status INT,                            -- 导入到Label-Studio的状态 0 未导入 1 已导入 2 导入后删除
+    FOREIGN KEY (weibo_id) REFERENCES weibo (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+# ALTER TABLE weibo_pre_annotation ADD UNIQUE (weibo_id);
+ALTER TABLE weibo_pre_annotation
+    ADD import_status INT DEFAULT 0;
