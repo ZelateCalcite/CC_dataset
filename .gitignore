@@ -3,3 +3,5 @@
 /weibo
 /connect_db.json
 /tweet
+*.jsonl
+import*.json
