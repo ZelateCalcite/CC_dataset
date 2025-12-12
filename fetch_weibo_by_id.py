@@ -30,8 +30,8 @@ logger = logging.getLogger('spider')
 global_config = {
     "user_id_list": [],
     "filter": 1,
-    "since_date": "2024-08-03",
-    "end_date": "2024-08-04",
+    "since_date": "2025-08-01",
+    "end_date": "2025-11-13",
     "random_wait_pages": [1, 5],
     "random_wait_seconds": [6, 10],
     "global_wait": [[1000, 3600], [500, 2000]],
@@ -40,7 +40,7 @@ global_config = {
     "video_download": 0,
     "file_download_timeout": [5, 5, 10],
     "result_dir_name": 1,
-    "cookie": "_T_WM=6c9622210c8da2c6492ca5e77ce4a3de; SCF=AkmHhln62YDWFSFl1vzulQ-Wd09yddy7K-VnCJTtefEZ8UawJS6YrMhMhfCKLR5BBW7TISFetJ3dnvlq2Yv7dts.; SUB=_2A25FHL9dDeRhGeFH6FYT8ibLwj2IHXVmU76VrDV6PUJbktANLVDakW1Ne36qaFeT54__qzW7aBjIAM7PXBVAo3Ki; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WFRqula4izcRzF_cgpYMsE.5JpX5KMhUgL.FoM4e0BEeonN1K22dJLoIp7LxKML1KBLBKnLxKqL1hnLBoMN1KeXeozRS0.p; SSOLoginState=1746456333; ALF=1749048333",
+    "cookie": "SCF=AkmHhln62YDWFSFl1vzulQ-Wd09yddy7K-VnCJTtefEZFYJdmZ8mHuxaInrLW9hniXfDyYAtP-jiHnrnMd7wPiE.; SUB=_2A25EEexPDeRhGeVM7FET8S3Lwz2IHXVnb2GHrDV6PUJbktANLRDekW1NTKbtEY-i_M1NMgO5LtU9ZHuZp_KjbIXI; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W54LjpmYH9xW-sUGxkJIWvF5NHD95Q0eoM0eo20S0npWs4DqcjsgJHjqPxL; SSOLoginState=1763023903; ALF=1765615903; _T_WM=b8160048a2931d14075372971d9e539c",
     "mysql_config": {
         "host": "10.10.66.178",
         "port": 3306,
@@ -422,16 +422,19 @@ def get_uid_list_from_database(start=None, end=None):
 def main(_):
     count = 0
     start = time()
-    for user_id in get_uid_list_from_database(start=1483, end=2500):
-        if 6 >= int(datetime.now().strftime('%H')) >= 0:
-            slt = random.randint(300, 900)
-            print(f'extra sleeping {slt} seconds')
-            sleep(slt)
 
-        current_uid = user_id['wid']
+    # for user_id in get_uid_list_from_database(start=5012, end=5017):
+        # if 6 >= int(datetime.now().strftime('%H')) >= 0:
+        #     slt = random.randint(300, 900)
+        #     print(f'extra sleeping {slt} seconds')
+        #     sleep(slt)
+        # current_uid = user_id['wid']
+    # to specially fetch someone weibo
+    for user_id in open('./special_fetch.log', 'r', encoding='utf-8').readlines():
+        current_uid = user_id
         current_config = global_config.copy()
 
-        current_config['user_id_list'] = [current_uid]
+        current_config['user_id_list'] = [current_uid.strip()]
 
         # # random choose one date
         # delta_date = random.randint(0, 365)

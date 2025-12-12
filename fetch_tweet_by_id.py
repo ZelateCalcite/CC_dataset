@@ -21,7 +21,7 @@ def get_tweet_id_list_from_database(start=None, end=None):
         end += 1
         data = select_from_table(cnf, 'tweet_id', condition=f'{start} < id AND id < {end} AND fetched_flag = 0')
     else:
-        data = select_from_table(cnf, 'tweet_id')
+        data = select_from_table(cnf, 'tweet_id', condition=f'fetched_flag = 0')
     return data
 
 
@@ -44,7 +44,7 @@ async def main():
     run_times = randint(25, 35)
     start = time()
 
-    for tid in get_tweet_id_list_from_database(start=504, end=1000):
+    for tid in get_tweet_id_list_from_database():
         if randint(0, 1):
             sleep(randint(5, 15))
 
@@ -64,9 +64,18 @@ async def main():
             start_time = time()
 
         tweet_id = tid['tweet_id']
-        tweet = await client.get_tweet_by_id(tweet_id)
+        try:
+            tweet = await client.get_tweet_by_id(tweet_id)
+        except Exception as e:
+            sleep(5)
+            print('Network error')
+            tweet = await client.get_tweet_by_id(tweet_id)
+
         if tweet is None:
             print(f'Tweet {tweet_id} not found')
+            update_table(cnf, 'tweet_id', {'fetched_flag': 2}, {'tweet_id': tweet_id})
+            print(f'更新{tweet_id}状态为空成功')
+            sleep(10)
             continue
 
         meta_info = {
@@ -135,13 +144,16 @@ async def main():
         print(f'存储推文\t{tweet.user.id}/{tweet.id}成功')
 
         if tweet.is_quote_status:
-            print(f'当前推特\t{tweet_id}\t为quote\n指向推特\t{tweet.quote.id}')
-            print(f'追加推特id\t{tweet.quote.id}')
-            insert_into_table(cnf, 'tweet_id', {
+            if tweet.quote:
+                print(f'当前推特\t{tweet_id}\t为quote\n指向推特\t{tweet.quote.id}')
+                print(f'追加推特id\t{tweet.quote.id}')
+                insert_into_table(cnf, 'tweet_id', {
                 'tweet_id': tweet.quote.id,
                 'add_date': 'NOW()',
             })
-            data['quote'] = tweet.quote.id
+                data['quote'] = tweet.quote.id
+            else:
+                print(f'当前推特\t{tweet_id}\t为quote\n指向推特已删除')
 
         try:
             if isinstance(tweet.media, list) and len(tweet.media) > 0:
